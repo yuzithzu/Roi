@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hacker ROI Calculator</title>
     <style>
         body {
@@ -14,7 +15,7 @@
         }
 
         #container {
-            width: 80%;
+            width: 100%;
             max-width: 600px;
             margin: 100px auto;
             padding: 20px;
@@ -73,14 +74,22 @@
         }
 
         #clock {
-            font-size: 12px;
+            font-size: 24px;
             margin-top: 20px;
+        }
+
+        .delete-button {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
     <div id="container">
-        <h1>ROI</h1>
+        <h1>Hacker ROI Calculator</h1>
         <form id="roi-form">
             <label for="date">Select Date:</label>
             <input type="date" id="date" name="date" required><br>
@@ -113,6 +122,7 @@
                         <th>Initial Investment</th>
                         <th>Profit</th>
                         <th>ROI Percentage</th>
+                        <th>Delete</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -121,7 +131,7 @@
             </table>
         </div>
 
-        <div id="clock"><span id="current-time"></span></div>
+        <div id="clock">Current Time: <span id="current-time"></span></div>
     </div>
 
     <script>
@@ -163,20 +173,28 @@
             const table = document.getElementById('summary-table').getElementsByTagName('tbody')[0];
             table.innerHTML = '';
 
-            records.forEach(record => {
+            records.forEach((record, index) => {
                 const row = table.insertRow(table.rows.length);
                 const cell1 = row.insertCell(0);
                 const cell2 = row.insertCell(1);
                 const cell3 = row.insertCell(2);
                 const cell4 = row.insertCell(3);
                 const cell5 = row.insertCell(4);
+                const cell6 = row.insertCell(5);
 
                 cell1.innerHTML = record.date;
                 cell2.innerHTML = record.category;
                 cell3.innerHTML = record.initialInvestment;
                 cell4.innerHTML = record.profit;
                 cell5.innerHTML = `${record.roi}%`;
+                cell6.innerHTML = `<button class="delete-button" onclick="deleteRecord(${index})">Delete</button>`;
             });
+        }
+
+        function deleteRecord(index) {
+            records.splice(index, 1);
+            updateSummaryTable();
+            saveRecordsToLocalStorage();
         }
 
         function saveRecordsToLocalStorage() {
