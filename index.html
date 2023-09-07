@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Hacker ROI Calculator</title>
+    <style>
+        body {
+            background-color: black;
+            color: lime;
+            font-family: monospace;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        #container {
+            width: 80%;
+            max-width: 600px;
+            margin: 100px auto;
+            padding: 20px;
+            background-color: #222;
+            border: 2px solid lime;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #roi-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        label, select, input, button {
+            background-color: #000;
+            color: lime;
+            border: 2px solid lime;
+            padding: 10px;
+            margin: 5px;
+            font-family: monospace;
+        }
+
+        button:hover {
+            cursor: pointer;
+            background-color: lime;
+            color: black;
+        }
+
+        p {
+            font-size: 18px;
+        }
+
+        #summary-frame {
+            width: 100%;
+            max-height: 200px;
+            overflow-y: scroll;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 2px solid lime;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+
+        #clock {
+            font-size: 12px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>ROI</h1>
+        <form id="roi-form">
+            <label for="date">Select Date:</label>
+            <input type="date" id="date" name="date" required><br>
+
+            <label for="category">Select Category:</label>
+            <select id="category" name="category">
+                <option value="SALON">SALON BLACK PNK</option>
+                <option value="JUICE">JUICE KING</option>
+                <option value="TOY">TOY NEGOSYO</option>
+            </select><br>
+
+            <label for="initial-investment">Initial Investment:</label>
+            <input type="number" id="initial-investment" name="initial-investment" required><br>
+
+            <label for="profit">Profit:</label>
+            <input type="number" id="profit" name="profit" required><br>
+
+            <button type="button" id="calculate-button">Calculate ROI</button>
+
+            <p id="roi-result"></p>
+        </form>
+
+        <h2>Summary Report</h2>
+        <div id="summary-frame">
+            <table id="summary-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Category</th>
+                        <th>Initial Investment</th>
+                        <th>Profit</th>
+                        <th>ROI Percentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Existing records will be displayed here -->
+                </tbody>
+            </table>
+        </div>
+
+        <div id="clock"><span id="current-time"></span></div>
+    </div>
+
+    <script>
+        // Initialize an array to store records
+        let records = [];
+
+        // Load existing records from localStorage, if any
+        const savedRecords = JSON.parse(localStorage.getItem('roi_records'));
+        if (savedRecords) {
+            records = savedRecords;
+            updateSummaryTable();
+        }
+
+        document.getElementById('calculate-button').addEventListener('click', function() {
+            const date = document.getElementById('date').value;
+            const category = document.getElementById('category').value;
+            const initialInvestment = parseFloat(document.getElementById('initial-investment').value);
+            const profit = parseFloat(document.getElementById('profit').value);
+
+            if (!isNaN(initialInvestment) && !isNaN(profit)) {
+                const roi = ((profit - initialInvestment) / initialInvestment) * 100;
+                const record = {
+                    date: date,
+                    category: category,
+                    initialInvestment: initialInvestment,
+                    profit: profit,
+                    roi: roi.toFixed(2)
+                };
+                records.push(record);
+                updateSummaryTable();
+                saveRecordsToLocalStorage();
+                document.getElementById('roi-form').reset();
+            } else {
+                document.getElementById('roi-result').textContent = 'Please enter valid numbers for Initial Investment and Profit.';
+            }
+        });
+
+        function updateSummaryTable() {
+            const table = document.getElementById('summary-table').getElementsByTagName('tbody')[0];
+            table.innerHTML = '';
+
+            records.forEach(record => {
+                const row = table.insertRow(table.rows.length);
+                const cell1 = row.insertCell(0);
+                const cell2 = row.insertCell(1);
+                const cell3 = row.insertCell(2);
+                const cell4 = row.insertCell(3);
+                const cell5 = row.insertCell(4);
+
+                cell1.innerHTML = record.date;
+                cell2.innerHTML = record.category;
+                cell3.innerHTML = record.initialInvestment;
+                cell4.innerHTML = record.profit;
+                cell5.innerHTML = `${record.roi}%`;
+            });
+        }
+
+        function saveRecordsToLocalStorage() {
+            localStorage.setItem('roi_records', JSON.stringify(records));
+        }
+
+        // Real-time clock
+        function updateClock() {
+            const currentTime = new Date();
+            const hours = currentTime.getHours();
+            const minutes = currentTime.getMinutes();
+            const seconds = currentTime.getSeconds();
+            document.getElementById('current-time').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+        setInterval(updateClock, 1000); // Update the clock every second
+    </script>
+</body>
+</html>
